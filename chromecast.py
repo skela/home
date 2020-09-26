@@ -7,9 +7,10 @@ class Chromecast(object):
 	def __init__(self,cast):
 		self.cast = cast
 
-	def play_mp3(self,url:str):		
+	def play_mp3(self,url:str):
+		self.cast.wait()
 		mc = self.cast.media_controller
-		mc.play_media(url, 'audio/mpeg')
+		mc.play_media(url, 'audio/mp3')		
 
 class ChromecastManager(object):
 
@@ -21,25 +22,17 @@ class ChromecastManager(object):
 		if friendly_name is None:
 			friendly_name = self.settings.chromecast_name
 		chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=[friendly_name])	
-		cast = chromecasts[0]
-		cast.wait()
+		cast = chromecasts[0]		
 		return Chromecast(cast)
 
 	def get_chromecasts(self) -> list:
-		c = list()		
-		chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=["*"])
+		c = list()
+		chromecasts = pychromecast.get_chromecasts()
 		pprint(chromecasts)
-		for cast in chromecasts:		
-			cast.wait()
+		for cast in chromecasts:
 			c.append(Chromecast(cast))
 		return c
 
 	def play_doorbell(self):
 		cast = self.get_chromecast()
 		cast.play_mp3(self.settings.doorbell_file)
-		# casts = self.get_chromecasts()
-		# for cast in casts:
-		# 	cast.play_mp3(self.settings.doorbell_file)
-		# services, browser = pychromecast.discovery.discover_chromecasts()
-		# pprint(services)
-		# pychromecast.discovery.stop_discovery(browser)

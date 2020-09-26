@@ -17,7 +17,16 @@ def main():
 		print("Last Ding:")
 		ding.print()
 		if ding.timesince < 60:
-			chromecast.play_doorbell()		
+			chromecast.play_doorbell()
 
 if __name__ == "__main__":
-	main()
+	import argparse
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-tcd","--test_chromecast_doorbell", help="Test doorbell sound on Chromecast",action="store_true")
+	args = parser.parse_args()
+	if args.test_chromecast_doorbell:
+		settings = Settings()
+		chromecast = ChromecastManager(settings)		
+		chromecast.play_doorbell()
+	else:
+		main()
