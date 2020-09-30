@@ -1,0 +1,4 @@
+{
+	"chromecast": {"name": "{Friendly name of chromecast}"},
+	"xcomfort": {"ip":"{IP of xComfort Bridge}","auth_key":"{Auth Key of xComfort Bridge}"}
+}

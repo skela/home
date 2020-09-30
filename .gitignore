@@ -2,3 +2,4 @@ test_token.cache
 .DS_Store
 .vscode
 __pycache__
+settings.json

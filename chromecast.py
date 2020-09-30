@@ -20,7 +20,7 @@ class ChromecastManager(object):
 	def get_chromecast(self, name:str = None) -> Chromecast:
 		friendly_name = name
 		if friendly_name is None:
-			friendly_name = self.settings.chromecast_name
+			friendly_name = self.settings.chromecast.name
 		chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=[friendly_name])	
 		cast = chromecasts[0]		
 		return Chromecast(cast)
