@@ -1,18 +1,14 @@
 import json
+import datetime
 import getpass
+
 from pathlib import Path
 from pprint import pprint
-import datetime
-import asyncio
 
 from settings import Settings
 from doorbell import DoorbellManager
 from chromecast import ChromecastManager
-
-from xcomfort import Bridge
-from xcomfort.bridge import State
-from xcomfort.devices import LightState,Light
-from xcomfort.connection import setup_secure_connection
+from xcomfort_manager import XComfortManager
 
 def main():
 	settings = Settings()
@@ -25,58 +21,33 @@ def main():
 		if ding.timesince < 60:
 			chromecast.play_doorbell()
 
-class XComfortBridge(Bridge):
 
-	def __init__(self, ip_address:str, authkey:str, session = None):
-		super().__init__(ip_address, authkey, session)
-
-	def _handle_SET_ALL_DATA(self, payload):
-		
-		if 'lastItem' in payload:
-			self.state = State.Ready
-		
-		if 'devices' in payload:
-			for device in payload['devices']:
-				device_id = device['deviceId']
-				name = device['name']
-				dimmable = device['dimmable']
-				state = LightState(device['switch'], device['dimmvalue'])
-
-				light = Light(self, device_id, name, dimmable, state)
-
-				self._add_device(light)
-
-async def main_xcomfort():
-	xcomfort = Settings().xcomfort
-	bridge = XComfortBridge(xcomfort.ip, xcomfort.auth_key)
-	
-	await bridge._connect()
-	# await bridge.run()
-	
-	await bridge.switch_device(48, True)
-
-	await asyncio.sleep(10) 
-
-	
-	# devices = await bridge.get_devices()
-	# devices = bridge._devices
-
-	
-
-	# print(len(devices))
-	await bridge.close()
 
 if __name__ == "__main__":
 	import argparse
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-tcd","--test_chromecast_doorbell", help="Test doorbell sound on Chromecast",action="store_true")
 	parser.add_argument("-txc","--test_xcomfort_bridge", help="Test xComfort Bridge",action="store_true")
+	parser.add_argument("-xc","--xcomfort", help="Issue command to xComfort device",action="store_true")
+	parser.add_argument("-c","--command", help="Command to send to xComfort device, either on or off")
+	parser.add_argument("-dl","--download", help="Download a list of configured xComfort devices",action="store_true")
+	parser.add_argument("-d","--device", help="Name of xComfort device, as defined in settings.json")
+
 	args = parser.parse_args()
 	if args.test_chromecast_doorbell:
 		settings = Settings()
-		chromecast = ChromecastManager(settings)		
+		chromecast = ChromecastManager(settings)
 		chromecast.play_doorbell()
 	elif args.test_xcomfort_bridge:
-		asyncio.run(main_xcomfort())
+		settings = Settings()
+		xcomfort = XComfortManager(settings.xcomfort)
+		xcomfort.test()		
+	elif args.xcomfort:
+		settings = Settings()
+		xcomfort = XComfortManager(settings.xcomfort)
+		if args.download:
+			xcomfort.download_devices()
+		else:
+			xcomfort.send_command(args.device,args.command)		
 	else:
 		main()

@@ -1,4 +1,16 @@
 {
-	"chromecast": {"name": "{Friendly name of chromecast}"},
-	"xcomfort": {"ip":"{IP of xComfort Bridge}","auth_key":"{Auth Key of xComfort Bridge}"}
+	"chromecast": {
+		"name": "{Friendly name of chromecast}"
+	},
+	"xcomfort": {
+		"ip": "{IP of xComfort Bridge}",
+		"auth_key": "{Auth Key of xComfort Bridge}",
+		"devices": [
+			{
+				"id": 1,
+				"name": "{Name of a device}",
+				"dimmable": false
+			}
+		]
+	}
 }
