@@ -1,10 +1,3 @@
-import json
-import datetime
-import getpass
-
-from pathlib import Path
-from pprint import pprint
-
 from settings import Settings
 from doorbell import DoorbellManager
 from chromecast import ChromecastManager

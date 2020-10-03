@@ -2,5 +2,6 @@ ring_doorbell
 pychromecast
 rx
 Pycryptodome
+aiohttp
 
 git+https://github.com/jankrib/xcomfort-python.git#egg=xcomfort
