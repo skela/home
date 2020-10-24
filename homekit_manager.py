@@ -56,7 +56,7 @@ class HomeKitManager(object):
 		try:
 			logging.basicConfig(level=logging.INFO)
 
-			driver = AccessoryDriver(port=51826)
+			driver = AccessoryDriver(port=51827)
 
 			for device in self.settings.xcomfort.devices:
 				if not device.add_to_homekit:
