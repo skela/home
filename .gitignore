@@ -3,3 +3,5 @@ test_token.cache
 .vscode
 __pycache__
 settings.json
+accessory.state
+

@@ -49,7 +49,7 @@ class XComfortDevice(object):
 
 		if self.add_to_homekit is None:
 			self.add_to_homekit = False
-
+	
 class XComfortSettings(object):
 
 	def __init__(self,ip:str=None,auth_key:str=None,devices:list=None,d:dict=None):

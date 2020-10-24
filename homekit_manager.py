@@ -6,11 +6,12 @@
 import sys
 sys.path.append('lib')
 
+import asyncio
 import logging
 import signal
 from pyhap.accessory_driver import AccessoryDriver
 
-from pyhap.accessory import Accessory
+from pyhap.accessory import Accessory, Bridge
 from pyhap.const import CATEGORY_LIGHTBULB
 from xcomfort_manager import XComfortManager
 from settings import Settings
@@ -50,23 +51,22 @@ class HomeKitXComfortLight(Accessory):
 class HomeKitManager(object):
 
 	def __init__(self, settings:Settings):
-		self.settings = settings
+		self.settings = settings		
 	
 	def start(self):
 		try:
 			logging.basicConfig(level=logging.INFO)
-
 			driver = AccessoryDriver(port=51827)
-
+			bridge = Bridge(driver, 'Bridge')			
 			for device in self.settings.xcomfort.devices:
 				if not device.add_to_homekit:
 					continue
 				lamp = HomeKitXComfortLight(driver, device.name)
-				driver.add_accessory(accessory=lamp)
-
+				bridge.add_accessory(lamp)
+			driver.add_accessory(accessory=bridge)
 			signal.signal(signal.SIGTERM, driver.signal_handler)
-
 			driver.start()
+
 		except KeyboardInterrupt:
 			print('Stopping...')
 
