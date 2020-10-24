@@ -1,4 +1,4 @@
-import locale
+# import locale
 # from homekit.controller import Controller
 # from homekit import HomeKitServer
 # from homekit.model import Accessory, LightBulbService
@@ -14,6 +14,7 @@ from pyhap.accessory import Accessory
 from pyhap.const import CATEGORY_LIGHTBULB
 from xcomfort_manager import XComfortManager
 from settings import Settings
+from settings import XComfortDevice
 
 class HomeKitXComfortLight(Accessory):
 
@@ -31,7 +32,7 @@ class HomeKitXComfortLight(Accessory):
 
 		for (name, setter) in chars:
 			server.configure_char(name, setter_callback = setter)
-		self.is_on = False		
+		self.is_on = False
 
 	def set_on(self, value):
 		self.is_on = bool(value)
@@ -39,17 +40,17 @@ class HomeKitXComfortLight(Accessory):
 
 	def set_bulb(self):
 		if self.is_on:
-			self.xcomfort.send_command("Hallway","on")
+			self.xcomfort.send_command(self.display_name,"on")
 		else:
-			self.xcomfort.send_command("Hallway","off")
+			self.xcomfort.send_command(self.display_name,"off")
 
 	def stop(self):
 		super().stop()
 
 class HomeKitManager(object):
 
-	def __init__(self):
-		pass
+	def __init__(self, settings:Settings):
+		self.settings = settings
 	
 	def start(self):
 		try:
@@ -57,8 +58,11 @@ class HomeKitManager(object):
 
 			driver = AccessoryDriver(port=51826)
 
-			lamp = HomeKitXComfortLight(driver, 'ToyLamp')
-			driver.add_accessory(accessory=lamp)
+			for device in self.settings.xcomfort.devices:
+				if not device.add_to_homekit:
+					continue
+				lamp = HomeKitXComfortLight(driver, device.name)
+				driver.add_accessory(accessory=lamp)
 
 			signal.signal(signal.SIGTERM, driver.signal_handler)
 

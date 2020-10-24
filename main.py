@@ -15,15 +15,12 @@ def main():
 		if ding.timesince < 60:
 			chromecast.play_doorbell()
 
-def prepare_string(input_string):
-    return '{t}'.format(t=input_string.encode(locale.getpreferredencoding(), errors='replace').decode())
-
 if __name__ == "__main__":
 	import argparse
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-tcd","--test_chromecast_doorbell", help="Test doorbell sound on Chromecast",action="store_true")
 	parser.add_argument("-txc","--test_xcomfort_bridge", help="Test xComfort Bridge",action="store_true")
-	parser.add_argument("-hk","--homekit", help="Issue command to a HomeKit device",action="store_true")
+	parser.add_argument("-hk","--homekit", help="Start Homekit Service",action="store_true")
 	parser.add_argument("-xc","--xcomfort", help="Issue command to xComfort device",action="store_true")	
 	parser.add_argument("-c","--command", help="Command to send to xComfort device, either on or off")
 	parser.add_argument("-dl","--download", help="Download a list of configured xComfort devices",action="store_true")
@@ -46,7 +43,8 @@ if __name__ == "__main__":
 		else:
 			xcomfort.send_command(args.device,args.command)
 	elif args.homekit:
-		hk = HomeKitManager()
+		settings = Settings()
+		hk = HomeKitManager(settings)
 		hk.start()
 	else:
 		main()

@@ -34,17 +34,21 @@ class ChromecastSettings(object):
 
 class XComfortDevice(object):
 
-	def __init__(self,id:int=None,name:str=None,dimmable:bool=None,d:dict=None):
+	def __init__(self,id:int=None,name:str=None,dimmable:bool=None,add_to_homekit:bool=None,d:dict=None):
 
 		if d is None:
 			self.id = id
 			self.name = name
 			self.dimmable = dimmable
+			self.add_to_homekit = add_to_homekit
 		else:
 			self.id = d["id"]
 			self.name = d["name"]
 			self.dimmable = d["dimmable"]
+			self.add_to_homekit = d["add_to_homekit"]
 
+		if self.add_to_homekit is None:
+			self.add_to_homekit = False
 
 class XComfortSettings(object):
 

@@ -9,7 +9,8 @@
 			{
 				"id": 1,
 				"name": "{Name of a device}",
-				"dimmable": false
+				"dimmable": false,
+				"add_to_homekit": true				
 			}
 		]
 	}
