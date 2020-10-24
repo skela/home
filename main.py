@@ -2,6 +2,7 @@ from settings import Settings
 from doorbell import DoorbellManager
 from chromecast import ChromecastManager
 from xcomfort_manager import XComfortManager
+from homekit_manager import HomeKitManager
 
 def main():
 	settings = Settings()
@@ -14,14 +15,16 @@ def main():
 		if ding.timesince < 60:
 			chromecast.play_doorbell()
 
-
+def prepare_string(input_string):
+    return '{t}'.format(t=input_string.encode(locale.getpreferredencoding(), errors='replace').decode())
 
 if __name__ == "__main__":
 	import argparse
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-tcd","--test_chromecast_doorbell", help="Test doorbell sound on Chromecast",action="store_true")
 	parser.add_argument("-txc","--test_xcomfort_bridge", help="Test xComfort Bridge",action="store_true")
-	parser.add_argument("-xc","--xcomfort", help="Issue command to xComfort device",action="store_true")
+	parser.add_argument("-hk","--homekit", help="Issue command to a HomeKit device",action="store_true")
+	parser.add_argument("-xc","--xcomfort", help="Issue command to xComfort device",action="store_true")	
 	parser.add_argument("-c","--command", help="Command to send to xComfort device, either on or off")
 	parser.add_argument("-dl","--download", help="Download a list of configured xComfort devices",action="store_true")
 	parser.add_argument("-d","--device", help="Name of xComfort device, as defined in settings.json")
@@ -41,6 +44,9 @@ if __name__ == "__main__":
 		if args.download:
 			xcomfort.download_devices()
 		else:
-			xcomfort.send_command(args.device,args.command)		
+			xcomfort.send_command(args.device,args.command)
+	elif args.homekit:
+		hk = HomeKitManager()
+		hk.start()
 	else:
 		main()

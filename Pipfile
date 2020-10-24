@@ -3,5 +3,8 @@ pychromecast
 rx
 Pycryptodome
 aiohttp
+#homekit[IP,BLE]
+homekit
+HAP-python[QRCode]
 
 git+https://github.com/jankrib/xcomfort-python.git#egg=xcomfort
