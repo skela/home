@@ -33,6 +33,14 @@ class XComfortBridge(Bridge):
 					print(f"Unknown device type {dev_type} named '{name}' - Skipped")
 
 
+class XComfortDevice(object):
+
+	def __init__(self,id:int,name:str,dimmable:bool,on:bool):
+		self.id = id
+		self.name = name
+		self.dimmable = dimmable
+		self.on = on
+
 class XComfortManager(object):
 
 	def __init__(self, settings:XComfortSettings):
@@ -63,9 +71,25 @@ class XComfortManager(object):
 		
 		await bridge.close()
 
+		device_list = list()
 		print(f"Found {len(devices)} xComfort Devices:")
-		for (id,device) in devices.items():
-			print(f'"id":{id}, "name":"{device.name}", "dimmable":{device.dimmable}')
+		for (id,device) in devices.items():						
+			on = device.state.value.dimmvalue == True
+			device_list.append(XComfortDevice(id,device.name,device.dimmable,on))
+			if on:
+				on = "on"
+			else:
+				on = "off"			
+			print(f'"id":{id}, "name":"{device.name}", "dimmable":{device.dimmable}, "on: {on}')
+
+		return device_list
+
+	async def _get_device(self,name:str):
+		devices = await self._download_devices()
+		for device in devices:
+			if device.name == name:
+				return device
+		return None
 
 	def send_command(self, device_name:str, command:str):
 		asyncio.run(self._send_command(device_name, command))
@@ -77,6 +101,8 @@ class XComfortManager(object):
 		if device is None:
 			exit(f"Device '{device_name} is missing from settings.json")
 
+		# xdev = await self._get_device(device_name)		
+
 		cmd = True
 		if command == "off":
 			cmd = False
@@ -87,7 +113,9 @@ class XComfortManager(object):
 
 		bridge = XComfortBridge(self.settings.ip, self.settings.auth_key)
 		
-		await bridge._connect()
+		await bridge._connect()		
+
+		if xdev is not None and xdev.on != cmd:
 
 		await bridge.switch_device(device.id, cmd)
 
