@@ -115,8 +115,7 @@ class XComfortManager(object):
 		
 		await bridge._connect()		
 
-		if xdev is not None and xdev.on != cmd:
-
+		# if xdev is not None and xdev.on != cmd:
 		await bridge.switch_device(device.id, cmd)
 
 		await bridge.close()

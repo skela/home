@@ -36,7 +36,16 @@ class HomeKitXComfortLight(Accessory):
 		self.is_on = False
 
 	def set_on(self, value):
-		self.is_on = bool(value)
+		print(f"OMG value is {value}")
+		if isinstance(value, str):
+			if value == "1" or value.lower() == "on":
+				self.is_on = True
+			elif value == "0" or value.lower() == "off":
+				self.is_on = False
+			else:
+				self.is_on = bool(value)
+		else:
+			self.is_on = bool(value)
 		self.set_bulb()
 
 	def set_bulb(self):
