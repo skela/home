@@ -117,5 +117,7 @@ class XComfortManager(object):
 
 		# if xdev is not None and xdev.on != cmd:
 		await bridge.switch_device(device.id, cmd)
+		if command and device.dimmable:
+			bridge.dimm_device(device.id, 100)
 
 		await bridge.close()

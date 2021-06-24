@@ -18,10 +18,15 @@ class Settings(object):
 		else:
 			self.chromecast = ChromecastSettings(name=None)
 
-		if "xcomfort" in d:			
+		if "xcomfort" in d:
 			self.xcomfort = XComfortSettings(d=d["xcomfort"])
 		else:
 			self.xcomfort = XComfortSettings()
+
+		if "easee" in d:
+			self.easee = EaseeSettings(d=d["easee"])
+		else:
+			self.easee = EaseeSettings()
 
 class ChromecastSettings(object):
 
@@ -69,5 +74,44 @@ class XComfortSettings(object):
 	def get_device(self, device_name:str) -> XComfortDevice:
 		for dev in self.devices:
 			if dev.name == device_name:
+				return dev
+		return None
+
+
+class EaseeDevice(object):
+
+	def __init__(self,id:str=None,name:str=None,add_to_homekit:bool=None,d:dict=None):
+
+		if d is None:
+			self.id = id
+			self.name = name			
+			self.add_to_homekit = add_to_homekit
+		else:
+			self.id = d["id"]
+			self.name = d["name"]			
+			self.add_to_homekit = d["add_to_homekit"]
+
+		if self.add_to_homekit is None:
+			self.add_to_homekit = False
+
+class EaseeSettings(object):
+
+	def __init__(self,username:str=None,password:str=None,devices:list=None,d:dict=None):
+		if d is None:
+			self.username = username
+			self.password = password
+			self.devices = devices
+		else:
+			self.username = d["username"]
+			self.password = d["password"]
+			l = list()
+			if "devices" in d:
+				for dev in d["devices"]:
+					l.append(EaseeDevice(d=dev))
+			self.devices = l
+
+	def get_device(self, device_id:str) -> EaseeDevice:
+		for dev in self.devices:
+			if dev.id == device_id:
 				return dev
 		return None

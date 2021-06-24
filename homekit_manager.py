@@ -12,8 +12,9 @@ import signal
 from pyhap.accessory_driver import AccessoryDriver
 
 from pyhap.accessory import Accessory, Bridge
-from pyhap.const import CATEGORY_LIGHTBULB
+from pyhap.const import CATEGORY_LIGHTBULB,CATEGORY_SENSOR
 from xcomfort_manager import XComfortManager
+from easee_manager import EaseeManager
 from settings import Settings
 from settings import XComfortDevice
 
@@ -35,8 +36,7 @@ class HomeKitXComfortLight(Accessory):
 			server.configure_char(name, setter_callback = setter)
 		self.is_on = False
 
-	def set_on(self, value):
-		print(f"OMG value is {value}")
+	def set_on(self, value):		
 		if isinstance(value, str):
 			if value == "1" or value.lower() == "on":
 				self.is_on = True
@@ -57,6 +57,59 @@ class HomeKitXComfortLight(Accessory):
 	def stop(self):
 		super().stop()
 
+class EaseeCharger(Accessory):
+
+	category = CATEGORY_SENSOR
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+		settings = Settings()
+		self.easee = EaseeManager(settings.easee)
+		self.easee.start()
+		
+		# chars = [('On',self.set_on)]
+
+		# server = self.add_preload_service('Lightbulb', chars = [ name for (name,_) in chars ])
+
+		# for (name, setter) in chars:
+		# 	server.configure_char(name, setter_callback = setter)
+		# self.is_on = False
+		
+		# Add the services that this Accessory will support with add_preload_service here
+		temp_service = self.add_preload_service('TemperatureSensor')
+		self.temp_char = temp_service.get_characteristic('CurrentTemperature')
+		self.testing = 0
+		# Having a callback is optional, but you can use it to add functionality.
+		self.temp_char.setter_callback = self.temperature_changed
+
+	def temperature_changed(self, value):
+		"""This will be called every time the value of the CurrentTemperature
+		is changed. Use setter_callbacks to react to user actions, e.g. setting the
+		lights On could fire some GPIO code to turn on a LED (see pyhap/accessories/LightBulb.py).
+		"""
+		print('Temperature changed to: ', value)
+	
+	# @Acessory.run_at_interval(3)  # Run this method every 3 seconds
+	# The `run` method can be `async` as well
+	def run(self):
+		"""We override this method to implement what the accessory will do when it is
+		started.
+
+		We set the current temperature to a random number. The decorator runs this method
+		every 3 seconds.
+		"""
+		self.temp_char.set_value(self.testing)
+		self.testing += 1
+
+	# The `stop` method can be `async` as well
+	def stop(self):
+		"""We override this method to clean up any resources or perform final actions, as
+		this is called by the AccessoryDriver when the Accessory is being stopped.
+		"""
+		self.easee.stop()
+		print('Stopping accessory.')
+
 class HomeKitManager(object):
 
 	def __init__(self, settings:Settings):
@@ -70,14 +123,22 @@ class HomeKitManager(object):
 			for device in self.settings.xcomfort.devices:
 				if not device.add_to_homekit:
 					continue
+				print(f"[XComfort] Adding {device.name}")
 				lamp = HomeKitXComfortLight(driver, device.name)
 				bridge.add_accessory(lamp)
+			for device in self.settings.easee.devices:
+				if not device.add_to_homekit:
+					continue
+				print(f"[Easee] Adding {device.name}")
+				charger = EaseeCharger(driver, device.name)
+				bridge.add_accessory(charger)
 			driver.add_accessory(accessory=bridge)
 			signal.signal(signal.SIGTERM, driver.signal_handler)
 			driver.start()
 
 		except KeyboardInterrupt:
 			print('Stopping...')
+
 
 # # controller = Controller()
 # # stuff = controller.get_pairings()

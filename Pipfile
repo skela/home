@@ -1,10 +1,14 @@
-ring_doorbell
-pychromecast
-rx
-Pycryptodome
-aiohttp
+ring_doorbell==0.6.2
+pychromecast==7.7.1
+rx==3.1.1
+Pycryptodome==3.9.9
+aiohttp==3.7.4.post0
 #homekit[IP,BLE]
-homekit
-HAP-python[QRCode]
+homekit==0.19.0
+HAP-python[QRCode]==3.1.0
+# TODO: Upgrade to v 3.5.0 for HAP
+#HAP-python[QRCode]==3.5.0
+signalrcore==0.9.2
+requests==2.25.1
 
 git+https://github.com/jankrib/xcomfort-python.git#egg=xcomfort

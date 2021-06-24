@@ -13,5 +13,16 @@
 				"add_to_homekit": true				
 			}
 		]
+	},
+	"easee": {
+		"username": "{easee username: +country_code_n_phone_number}",
+		"password": "{easee password}",
+		"devices": [
+			{
+				"id": "EHABCDEF",
+				"name": "EHABCDEF",				
+				"add_to_homekit": true
+			}
+		]
 	}
 }
