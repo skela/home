@@ -62,6 +62,31 @@ class XComfortManager(object):
 	def download_devices(self):		
 		asyncio.run(self._download_devices())
 
+	@staticmethod
+	def parse_devices(devices):
+		device_list = list()
+		print(f"Found {len(devices)} xComfort Devices:")
+		for (id,device) in devices.items():						
+			on = device.state.value.switch == True
+			# print(f'A"id":{id}, "name":"{device.name}", "state":{device.state.value}')
+			device_list.append(XComfortDevice(id,device.name,device.dimmable,on))
+			if on:
+				on = "on"
+			else:
+				on = "off"
+			# print(f'B"id":{id}, "name":"{device.name}", "dimmable":{device.dimmable}, "on: {on}')
+			print(f'"id":{id}, "name":"{device.name}", "dimmable":{device.dimmable}, "on: {on}')
+
+		return device_list
+
+	# devices is a list of XComfortDevice
+	@staticmethod
+	def get_device(devices:list,id:int) -> XComfortDevice:		
+		for device in devices:
+			if device.id == id:
+				return device
+		return None
+
 	async def _download_devices(self):
 		bridge = XComfortBridge(self.settings.ip, self.settings.auth_key)
 			
@@ -71,25 +96,7 @@ class XComfortManager(object):
 		
 		await bridge.close()
 
-		device_list = list()
-		print(f"Found {len(devices)} xComfort Devices:")
-		for (id,device) in devices.items():						
-			on = device.state.value.dimmvalue == True
-			device_list.append(XComfortDevice(id,device.name,device.dimmable,on))
-			if on:
-				on = "on"
-			else:
-				on = "off"			
-			print(f'"id":{id}, "name":"{device.name}", "dimmable":{device.dimmable}, "on: {on}')
-
-		return device_list
-
-	async def _get_device(self,name:str):
-		devices = await self._download_devices()
-		for device in devices:
-			if device.name == name:
-				return device
-		return None
+		return XComfortManager.parse_devices(devices)
 
 	def send_command(self, device_name:str, command:str):
 		asyncio.run(self._send_command(device_name, command))
@@ -101,15 +108,21 @@ class XComfortManager(object):
 		if device is None:
 			exit(f"Device '{device_name} is missing from settings.json")
 
-		# xdev = await self._get_device(device_name)		
-
-		cmd = True
+		cmd = True		
 		if command == "off":
 			cmd = False
 		elif command == "on":
 			cmd = True
+		elif command == "toggle":
+			devices = await self._download_devices()
+			xdev = XComfortManager.get_device(devices,device.id)
+			if xdev is not None:
+				if xdev.on:
+					cmd = False
+				else:
+					cmd = True
 		else:
-			exit(f"Command '{command} was not recognized, should be either on or off")
+			exit(f"Command '{command} was not recognized, should be either on, off or toggle")
 
 		bridge = XComfortBridge(self.settings.ip, self.settings.auth_key)
 		
